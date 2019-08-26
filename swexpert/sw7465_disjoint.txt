@@ -1,0 +1,73 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+class Solution {
+	static int T;
+	static int N;
+	static int M;
+
+	static int[] disjoint;
+
+	public static void main(String args[]) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = null;
+
+		T = Integer.parseInt(br.readLine());
+
+		for (int t_case = 1; t_case <= T; t_case++) {
+			st = new StringTokenizer(br.readLine());
+			N = Integer.parseInt(st.nextToken());
+			M = Integer.parseInt(st.nextToken());
+
+			disjoint = new int[N + 1];
+
+			for (int i = 1; i < N + 1; i++) {
+				disjoint[i] = i;
+			}
+
+			for (int i = 0; i < M; i++) {
+				st = new StringTokenizer(br.readLine());
+				int n1 = Integer.parseInt(st.nextToken());
+				int n2 = Integer.parseInt(st.nextToken());
+
+				if (find(n1) != find(n2)) {
+					union(n1, n2);
+				}
+			}
+
+			int[] count = new int[N + 1];
+			for (int i = 1; i < N + 1; i++) {
+				count[find(i)]++;
+			}
+
+			int ans = 0;
+			for (int i = 1; i < N + 1; i++) {
+				if (count[i] > 0) {
+					ans++;
+				}
+			}
+
+			System.out.println("#" + t_case + " " + ans);
+		}
+	}
+
+	private static int find(int n) {
+		if (disjoint[n] == n) {
+			return n;
+		}
+
+		disjoint[n] = find(disjoint[n]);
+
+		return disjoint[n];
+	}
+
+	private static void union(int n1, int n2) {
+		int p1 = find(n1);
+		int p2 = find(n2);
+
+		if (p1 != p2) {
+			disjoint[p1] = p2;
+		}
+	}
+}
