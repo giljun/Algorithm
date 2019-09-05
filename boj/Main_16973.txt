@@ -1,0 +1,121 @@
+package after0905;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+public class Main_16973_직사각형탈출 {
+	static int[][] map;
+	static int[][] memo;
+	static int N, M; // 전체 높이, 너비
+	static int H, W; // 직사각형 높이, 너비
+	static Point start, end;
+	static int[] di = { 0, -1, 0, 1 }; // 0:좌 1:상 2:우 3:하
+	static int[] dj = { -1, 0, 1, 0 }; //
+
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+
+		N = sc.nextInt();
+		M = sc.nextInt();
+
+		map = new int[N + 1][M + 1];
+		memo = new int[N + 1][M + 1];
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= M; j++) {
+				map[i][j] = sc.nextInt();
+			}
+		}
+
+		H = sc.nextInt();
+		W = sc.nextInt();
+		start = new Point(sc.nextInt(), sc.nextInt());
+		end = new Point(sc.nextInt(), sc.nextInt());
+
+		for (int i = 1; i <= N; i++)
+			Arrays.fill(memo[i], Integer.MAX_VALUE);
+
+		Queue<Point> queue = new LinkedList<>(); // 시작점부터 너비우선 탐색으로 거리 기록하면서 넓혀나가기.
+		queue.add(start);
+		memo[start.i][start.j] = 0;
+
+		while (!queue.isEmpty()) { // 목적지에 도착했거나 또는 모든 가능한 이동을 다해봤으면 그만하기.
+			Point p = queue.poll();
+			int dist = memo[p.i][p.j];
+			for (int d = 0; d < 4; d++) {
+				int ni = p.i + di[d];
+				int nj = p.j + dj[d];
+
+				// 직사각형 좌측 상단이 갈 수 있는 좌표는 전체 너비에서 직사각형 너비 뺀만큼과 전체 높이에서 직사각형 높이 뺀만큼만 허용됨.
+				if (ni >= 1 && ni <= N - H + 1 && nj >= 1 && nj <= M - W + 1 && memo[ni][nj] > dist + 1) {
+					boolean isMove = true;
+
+					switch (d) {
+					case 0: // 좌
+						for (int i = p.i; i <= N && i < (p.i + H); i++) { // 좌측 열에 직사각형의 높이만큼 검사하면서 1 있나 보기. 있으면 못감.
+							if (map[i][nj] == 1) {
+								isMove = false;
+								break;
+							}
+						}
+						break;
+					case 1: // 상
+						for (int j = p.j; j <= M && j < (p.j + W); j++) { // 위쪽 행에 직사각형의 너비만큼 검사하면서 1 있나 보기.
+							if (map[ni][j] == 1) {
+								isMove = false;
+								break;
+							}
+						}
+						break;
+					case 2: // 우
+						for (int i = p.i; i <= N && i < (p.i + H); i++) { // 우측 열에 직사각형의 높이만큼 검사하면서 1 있나 보기
+							if (map[i][nj + W - 1] == 1) {
+								isMove = false;
+								break;
+							}
+						}
+						break;
+					case 3: // 하
+						for (int j = p.j; j <= M && j < (p.j + W); j++) { // 아래 행에 직사각형의 너비만큼 검사하면서 1 있나 보기
+							if (map[ni + H - 1][j] == 1) {
+								isMove = false;
+								break;
+							}
+						}
+						break;
+					}
+
+					if (isMove) { // 위의 검사를 통과했으면 이동 가능함. 현재까지의 거리에 1 더하면 다음칸까지의 거리임.
+						memo[ni][nj] = dist + 1;
+						queue.add(new Point(ni, nj));
+					}
+				}
+			}
+		}
+
+		// print memo
+		for (int i = 1; i <= N; i++) {
+			for (int j = 1; j <= M; j++) {
+				if (memo[i][j] == Integer.MAX_VALUE)
+					System.out.print("X ");
+				else
+					System.out.print(memo[i][j] + " ");
+			}
+			System.out.println();
+		}
+
+		int ans = memo[end.i][end.j] == Integer.MAX_VALUE ? -1 : memo[end.i][end.j];
+		System.out.println(ans);
+	}
+
+	static class Point {
+		int i, j;
+
+		Point(int i, int j) {
+			this.i = i;
+			this.j = j;
+		}
+	}
+
+}
