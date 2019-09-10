@@ -1,0 +1,152 @@
+import java.util.*;
+import java.io.*;
+
+public class Main {
+
+	static int N;
+	static char[][] section;
+	static boolean[][] visited;
+
+	static int[] dx = { 1, 0, -1, 0 };
+	static int[] dy = { 0, 1, 0, -1 };
+
+	public static void main(String args[]) throws IOException {
+		Scanner sc = new Scanner(System.in);
+
+		N = sc.nextInt();
+
+		section = new char[N][N];
+		visited = new boolean[N][N];
+
+		for (int i = 0; i < section.length; i++) {
+			String str = sc.next();
+			for (int j = 0; j < section.length; j++) {
+				section[i][j] = str.charAt(j);
+			}
+		}
+
+		int res1 = nomal();
+
+		clearVisited();
+
+		int res2 = weak();
+
+		System.out.println(res1 + " " + res2);
+
+	}
+
+	private static void clearVisited() {
+		for (int i = 0; i < section.length; i++) {
+			for (int j = 0; j < section.length; j++) {
+				visited[i][j] = false;
+			}
+		}
+	}
+
+	static int nomal() {
+		int cnt = 0;
+		for (int i = 0; i < section.length; i++) {
+			for (int j = 0; j < section.length; j++) {
+				if (!visited[i][j]) {
+					cnt++;
+					n_bfs(i, j);
+				}
+			}
+		}
+		return cnt;
+	}
+
+	static void n_bfs(int i, int j) {
+		Queue<Point> queue;
+		queue = new LinkedList<>();
+
+		queue.add(new Point(i, j));
+		visited[i][j] = true;
+
+		while (!queue.isEmpty()) {
+			Point p = queue.poll();
+
+			for (int k = 0; k < 4; k++) {
+				int x = p.x + dx[k];
+				int y = p.y + dy[k];
+				if (x >= 0 && x < N && y >= 0 && y < N && !visited[x][y]) {
+					if (section[p.x][p.y] == section[x][y]) {
+						visited[x][y] = true;
+						queue.add(new Point(x, y));
+					}
+				}
+			}
+		}
+	}
+
+	private static int weak() {
+		int cnt = 0;
+
+		for (int i = 0; i < section.length; i++) {
+			for (int j = 0; j < section.length; j++) {
+				if (!visited[i][j]) {
+					cnt++;
+					w_bfs(i, j, section[i][j]);
+				}
+			}
+		}
+		return cnt;
+	}
+
+	static void w_bfs(int i, int j, char c) {
+		Queue<Point2> queue = new LinkedList<>();
+
+		visited[i][j] = true;
+		queue.add(new Point2(i, j, c));
+
+		while (!queue.isEmpty()) {
+			Point2 p = queue.poll();
+
+			if (p.c == 'R' || p.c == 'G') {
+				for (int k = 0; k < 4; k++) {
+					int x = p.x + dx[k];
+					int y = p.y + dy[k];
+					if (x >= 0 && x < N && y >= 0 && y < N && !visited[x][y]) {
+						if (section[x][y] == 'R' || section[x][y] == 'G') {
+							visited[x][y] = true;
+							queue.add(new Point2(x, y, section[x][y]));
+						}
+					}
+				}
+			} else {
+				for (int k = 0; k < 4; k++) {
+					int x = p.x + dx[k];
+					int y = p.y + dy[k];
+					if (x >= 0 && x < N && y >= 0 && y < N && !visited[x][y]) {
+						if (section[x][y] == 'B') {
+							visited[x][y] = true;
+							queue.add(new Point2(x, y, section[x][y]));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	static class Point {
+		int x;
+		int y;
+
+		Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	static class Point2 {
+		int x;
+		int y;
+		char c;
+
+		Point2(int x, int y, char c) {
+			this.x = x;
+			this.y = y;
+			this.c = c;
+		}
+	}
+}
