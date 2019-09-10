@@ -2,7 +2,6 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-	//static int T;
 	static int N;
 	static char[][] section;
 	static boolean[][] visited;
