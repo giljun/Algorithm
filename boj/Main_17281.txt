@@ -1,0 +1,170 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.StringTokenizer;
+
+public class Main {
+	static int N;
+	static int[][] batting_res; // 각 선수가 각 이닝에서 얻는 결과
+	static boolean[] batting; // 각 선수들이 쳤는지 안쳤는지를 확인하는 boolean형 배열
+	static int[] hitter;
+	static int max_score;
+
+	public static void main(String args[]) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = null;
+
+		N = Integer.parseInt(br.readLine());
+
+		// 총 9명의 선수가 있다.
+		batting_res = new int[N][9];
+		batting = new boolean[9];
+
+		// 타순을 의미한다.
+		hitter = new int[9];
+
+		for (int i = 0; i < N; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < 9; j++) {
+				batting_res[i][j] = Integer.parseInt(st.nextToken());
+			}
+		}
+
+		// 4번 타자는 1번 선수이다.
+		hitter[3] = 0;
+		max_score = -1;
+
+		// 1. 선수를 배치한다.
+		dispose(0);
+		
+		// 2. 결과값을 출력
+		System.out.println(max_score);
+	}
+
+	static void dispose(int num) {
+		// 1. 4번 타자의 경우,1번 선수로 고정.
+		if (num == 3) {
+			dispose(num + 1);
+			return;
+		}
+
+		// 2. 9번 타자까지 배치를 완료한 경우, 게임을 시작한다.
+		if (num == 9) {
+//			print();
+			int score = Game_start();
+			if (max_score < score) {
+				max_score = score;
+			}
+			return;
+		}
+
+		// 3. 1번 타자를 제외하고 배치를 진행한다.
+		for (int i = 1; i < 9; i++) {
+			if (batting[i]) {
+				continue;
+			}
+			hitter[num] = i;
+			batting[i] = true;
+			dispose(num + 1);
+			batting[i] = false;
+		}
+	}
+	
+	static void print() {
+		for (int i = 0; i < 9; i++) {
+			System.out.print(hitter[i] + " ");
+		}
+	}
+	
+	static int Game_start() {
+
+		int score = 0;
+		int out;
+		boolean[] base = new boolean[4];
+		int hitter_num = 0;
+
+		// 1. 주어진 이닝만큼 경기를 진행한다.
+		for (int i = 0; i < N; i++) {
+
+			// 2. 이닝 시작 시, 아웃 카운트와 출루에 대한 정보를 초기화한다.
+			out = 0;
+			Arrays.fill(base, false);
+
+			// 3. 3명의 타자가 아웃될 때까지 공격을 진행한다.
+			while (true) {
+				int hit_res = batting_res[i][hitter[hitter_num]];
+
+				if (hitter_num == 8) {
+					hitter_num = 0;
+				} else {
+					hitter_num++;
+				}
+
+				switch (hit_res) {
+				case 1: // 안타
+					if (base[3]) {
+						score++;
+						base[3] = false;
+					}
+					for (int j = 2; j > 0; j--) {
+						if (base[j]) {
+							base[j] = false;
+							base[j + 1] = true;
+						}
+					}
+					base[1] = true;
+					break;
+				case 2: // 2루타
+					for (int j = 3; j > 0; j--) {
+						if (j != 1) {
+							if (base[j]) {
+								score++;
+								base[j] = false;
+							}
+						} else {
+							if (base[j]) {
+								base[j] = false;
+								base[j + 2] = true;
+							}
+						}
+					}
+					base[2] = true;
+					break;
+				case 3: // 3루타
+					for (int j = 3; j > 0; j--) {
+						if (base[j]) {
+							score++;
+							base[j] = false;
+						}
+					}
+					base[3] = true;
+					break;
+				case 4: // 홈런
+					for (int j = 3; j >= 1; j--) {
+						if (base[j]) {
+							score++;
+							base[j] = false;
+						}
+					}
+					score++;
+					break;
+				case 0:
+					out++;
+					break;
+				}
+
+				if (out == 3) {
+					break;
+				}
+			}
+		}
+
+		return score;
+	}
+}
