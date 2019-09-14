@@ -1,0 +1,82 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class Solution {
+
+	static int T;
+	static int N;
+
+	// 델타검색을 위한 배열(상, 좌, 하, 우)
+	static int[] dx = { -1, 0, 1, 0 };
+	static int[] dy = { 0, -1, 0, 1 };
+
+	static int[][] cheese;
+	static boolean[][] iseat;
+	static int max_chunk;
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = null;
+
+		T = Integer.parseInt(br.readLine());
+
+		for (int t_case = 1; t_case <= T; t_case++) {
+			// 치즈 한 변의 길이
+			N = Integer.parseInt(br.readLine());
+
+			cheese = new int[N][N];
+
+			int day = 0; // 가장 맛잇는 치즈 = 가장 늦게 먹을 치즈이기도 하다.
+			for (int i = 0; i < N; i++) {
+				st = new StringTokenizer(br.readLine());
+				for (int j = 0; j < N; j++) {
+					cheese[i][j] = Integer.parseInt(st.nextToken());
+					if (day < cheese[i][j]) {
+						day = cheese[i][j];
+					}
+				}
+			}
+
+			max_chunk = 0;
+			for (int d = 0; d < day; d++) {
+				iseat = new boolean[N][N];
+
+				// 덩어리를 의미한다.
+				int chunk = 0;
+
+				// 전맵탐색 시작
+				for (int i = 0; i < N; i++) {
+					for (int j = 0; j < N; j++) {
+						if (iseat[i][j] == false && cheese[i][j] > d) {
+							dfs(i, j, d);
+							chunk++;
+						}
+					}
+				}
+
+				if (chunk > max_chunk) {
+					max_chunk = chunk;
+				}
+			}
+			System.out.println("#"+ t_case + " " + max_chunk);
+		}
+	}
+
+	private static void dfs(int i, int j, int d) {
+		iseat[i][j] = true;
+
+		for (int k = 0; k < 4; k++) {
+			int ni = i + dx[k];
+			int nj = j + dy[k];
+
+			if (ni >= 0 && ni < N && nj >= 0 && nj < N) {
+				if (iseat[ni][nj] == false && cheese[ni][nj] > d) {
+					dfs(ni, nj, d);
+				}
+			}
+		}
+	}
+
+}
