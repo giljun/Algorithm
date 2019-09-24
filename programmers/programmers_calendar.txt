@@ -13,7 +13,7 @@ class Solution {
 
 		day_sum = day_sum % 7;
 
-		answer = n_day[day_sum-1];
+		answer = n_day[day_sum];
 
 		return answer;
   }
