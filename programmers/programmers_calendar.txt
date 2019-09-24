@@ -1,0 +1,20 @@
+class Solution {
+  public String solution(int a, int b) {
+      String answer = "";
+
+		int[] day = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+		String[] n_day = {"FRI","SAT", "SUN", "MON", "TUE", "WED", "THU"};
+		int day_sum = 0;
+
+		for (int i = 0; i < a - 1; i++) {
+			day_sum += day[i];
+		}
+		day_sum += b;
+
+		day_sum = day_sum % 7;
+
+		answer = n_day[day_sum-1];
+
+		return answer;
+  }
+}
