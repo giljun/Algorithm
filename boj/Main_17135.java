@@ -3,7 +3,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-class Main {
+class Main_17135 {
 
 	static int n, m, d;
 	static int[][] map;
@@ -33,6 +33,8 @@ class Main {
 
 		// 게임 시작
 		gamestart();
+
+		System.out.println(max);
 	}
 
 	private static void gamestart() {
@@ -47,6 +49,10 @@ class Main {
 			if (max < count) {
 				max = count;
 			}
+//			if(archores[0].c == 1 && archores[1].c == 2 &&archores[2].c == 3) {
+//				int count = attack();
+//				System.out.println(count);
+//			}
 			return;
 		}
 		for (int i = 0; i < isarrange.length; i++) {
@@ -62,8 +68,16 @@ class Main {
 	private static int attack() {
 		int count = 0;
 
+		int[][] world = new int[n][m];
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				world[i][j] = map[i][j];
+			}
+		}
+
 		while (true) {
-			if (isEmpty()) {
+			if (isEmpty(world)) {
 				break;
 			}
 
@@ -71,25 +85,66 @@ class Main {
 			// 최종적으로 제거할 적에 대한 임시 변수
 			ArrayList<Archor> enemies = new ArrayList<>();
 			for (int i = 0; i < archores.length; i++) {
-				int dist = 16;
-				int left = 16;
+				int ar = archores[i].r;
+				int ac = archores[i].c;
+				int distance = 16;
+
+				int er = -1;
+				int ec = -1;
 				for (int j = 0; j < n; j++) {
 					for (int k = 0; k < m; k++) {
-						// 적이 있다면,
-						if (map[j][k] == 1) {
-							// 사정거리가 더 짧은 지를 계산
-							int di = Math.abs(archores[i].r - j) + Math.abs(archores[i].c - k);
-							if(dist > di) {
-								dist = di;
-							}else if( dist == di) {
-								if( left > k ) {
-									left = k;
+						if (world[j][k] == 1) {
+							int dist = Math.abs(ar - j) + Math.abs(ac - k);
+							if (dist <= d) {
+								if (distance > dist) {
+									distance = dist;
+									er = j;
+									ec = k;
+								} else if (distance == dist) {
+									if (ec > k) {
+										er = j;
+										ec = k;
+									}
 								}
 							}
 						}
 					}
 				}
-				
+				if (er != -1 && ec != -1) {
+					enemies.add(new Archor(er, ec));
+				}
+			}
+
+			// 4. 화살에 맞은 적들 제거
+			for (int i = 0; i < enemies.size(); i++) {
+				int er = enemies.get(i).r;
+				int ec = enemies.get(i).c;
+
+				if (world[er][ec] == 1) {
+					count++;
+					world[er][ec] = 0;
+				}
+			}
+
+			// 5. 적들 한칸 앞 전진
+			enemies = new ArrayList<>();
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < m; j++) {
+					if (world[i][j] == 1) {
+						enemies.add(new Archor(i, j));
+					}
+				}
+			}
+
+			for (int i = enemies.size() - 1; i >= 0; i--) {
+				int er = enemies.get(i).r + 1;
+				int ec = enemies.get(i).c;
+				if (er == n) {
+					world[er - 1][ec] = 0;
+				} else {
+					world[er - 1][ec] = 0;
+					world[er][ec] = 1;
+				}
 			}
 
 		}
@@ -97,12 +152,12 @@ class Main {
 		return count;
 	}
 
-	private static boolean isEmpty() {
+	private static boolean isEmpty(int[][] world) {
 		int count = 0;
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				if (map[i][j] == 1) {
+				if (world[i][j] == 1) {
 					count++;
 				}
 			}
@@ -115,7 +170,7 @@ class Main {
 	}
 
 	private static void print() {
-		for (int i = 0; i < n + 1; i++) {
+		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
 				System.out.print(map[i][j] + " ");
 			}
