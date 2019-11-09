@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+class Solution {
+
+	public static void main(String args[]) {
+		String s = "{{4,2,3},{3},{2,3,4,1},{2,3}}";
+
+		int[] result = solution(s);
+		
+		for (int i = 0; i < result.length; i++) {
+			System.out.print(result[i]);
+		}
+	}
+
+	public static int[] solution(String s) {
+		int[] answer = {};
+
+		s = s.substring(1, s.length() - 1);
+
+		ArrayList<String> numbers = new ArrayList<>();
+		int index = 0;
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == '{') {
+				String str = "";
+				i++;
+				while (s.charAt(i) != '}') {
+					str += s.charAt(i);
+					i++;
+				}
+				numbers.add(str);
+			}
+		}
+
+		Collections.sort(numbers, new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.length() - o2.length();
+			}
+		});
+
+//		for (int i = 0; i < numbers.size(); i++) {
+//			System.out.println(numbers.get(i));
+//		}
+
+		answer = new int[numbers.size()];
+		ArrayList<String> result = new ArrayList<>();
+
+		for (int i = 0; i < numbers.size(); i++) {
+			String number = numbers.get(i);
+			String[] arr = number.split(",");
+
+			if (i == 0) {
+				result.add(arr[i]);
+			} else {
+				for (int j = 0; j < arr.length; j++) {
+					boolean checked = false;
+					for (int k = 0; k < result.size(); k++) {
+						if(arr[j].equals(result.get(k))) {
+							checked = true;
+						}
+					}
+					if(!checked) {
+						result.add(arr[j]);
+					}
+				}
+			}
+		}
+		
+		for (int i = 0; i < result.size(); i++) {
+			answer[i] = Integer.parseInt(result.get(i));
+		}
+
+		return answer;
+	}
+
+}
